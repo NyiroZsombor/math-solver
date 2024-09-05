@@ -117,9 +117,13 @@ public class Parser {
             }
             
             else if (tokens[idx] == Lexer.LEFT) {
-                if (lastOperationID == Lexer.EOF) value = parseProduct();
+                if (lastOperationID == Lexer.EOF) {
+                    idx++;
+                    value = parseExpression();
+                }
                 else if (lastOperationID == Lexer.ADD || lastOperationID == Lexer.SUB) {
-                    value = new Operation(value, parseProduct(), lastOperationID);
+                    idx++;
+                    value = new Operation(value, parseExpression(), lastOperationID);
                 }
                 else System.err.println("MULT or DIV");
                 idx--;
@@ -210,7 +214,7 @@ public class Parser {
 
                 if (lastOperationID == Lexer.EOF) value = parseExpression();
                 else if (lastOperationID == Lexer.MULT || lastOperationID == Lexer.DIV) {
-                    value = new Operation(value, parseExpression(), lastOperationID);
+                    value = new Operation(value, parseProduct(), lastOperationID);
                 }
                 else System.err.println("MULT or DIV");
 

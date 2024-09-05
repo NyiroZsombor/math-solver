@@ -3,11 +3,25 @@ package main;
 import java.util.Scanner;
 
 import solve.Lexer;
+import solve.PreParser;
 import solve.Parser;
 
 public class Main {
     public static void main(String[] args) {
-        input();
+        testInput();
+    }
+    
+    public static void testInput() {
+        Scanner scanner = new Scanner(System.in);
+    
+        System.out.println(" \n");
+    
+        System.out.print("Please enter an equation to be solved: ");
+        String input = scanner.nextLine();
+        PreParser preParser = new PreParser(new Lexer(input).getTokens());
+        System.out.println(Lexer.toStringTokens(preParser.getTokens()));
+    
+        scanner.close();
     }
 
     public static void input() {

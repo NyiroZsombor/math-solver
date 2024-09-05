@@ -107,5 +107,26 @@ public class Lexer {
         return result;
     }
 
+    public static String toStringTokens(byte[] tokens) {
+        String result = "[".concat(Byte.toString(tokens[0]));
+
+        for (int i = 1; i < tokens.length; i++) {
+            result = result.concat(", ");
+            if (tokens[i] == Lexer.ADD) result = result.concat("+");
+            else if (tokens[i] == Lexer.SUB) result = result.concat("-");
+            else if (tokens[i] == Lexer.MULT) result = result.concat("*");
+            else if (tokens[i] == Lexer.DIV) result = result.concat("/");
+            else if (tokens[i] == Lexer.LEFT) result = result.concat(" ( ");
+            else if (tokens[i] == Lexer.RIGHT) result = result.concat(" ) ");
+            else if (tokens[i] == Lexer.EQUAL) result = result.concat(" = ");
+            else if (tokens[i] == Lexer.VAR) result = result.concat(" x ");
+            else if (tokens[i] == Lexer.NUM) result = result.concat(Integer.toString(Parser.parseNum(tokens, i)));
+            
+        }
+
+        result = result.concat("]");
+        return result;
+    }
+
     public byte[] getTokens() { return tokens; }
 }
