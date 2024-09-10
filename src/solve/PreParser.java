@@ -7,7 +7,7 @@ import main.Error;
 
 public class PreParser {
     ArrayList<Byte> expected;
-    ArrayList<Byte> result;
+    ArrayList<Byte> preParsed;
     byte[] tokens;
     int idx;
     boolean isEquation;
@@ -15,11 +15,11 @@ public class PreParser {
     public PreParser(byte[] tokens) {
         this.tokens = tokens;
         expected = new ArrayList<>(Lexer.TOKEN_COUNT);
-        result = new ArrayList<>();
         idx = 0;
         isEquation = false;
 
-        parseExpression();
+        preParsed = parseExpression();
+        preParsed.add(Lexer.EOF);
     }
 
     public ArrayList<Byte> parseExpression() {
@@ -37,7 +37,7 @@ public class PreParser {
         expected.add(Lexer.NUM);
         expected.add(Lexer.VAR);
 
-        while (true) {
+        while (idx < tokens.length) {
             isEquation = isEquation || tokens[idx] == Lexer.EQUAL;
 
             if (!expected.contains(tokens[idx])) {
@@ -47,10 +47,7 @@ public class PreParser {
 
             if (tokens[idx] == Lexer.EOF) return result;
 
-            if (tokens[idx] == Lexer.RIGHT) {
-                idx++;
-                return result;
-            }
+            if (tokens[idx] == Lexer.RIGHT) return result;
 
             else if (operations.contains(tokens[idx])) {
                 lastOperationID = tokens[idx];
@@ -64,12 +61,12 @@ public class PreParser {
             else if (tokens[idx] == Lexer.LEFT) {
                 if (lastOperationID == Lexer.EOF) {
                     idx++;
-                    result = parseExpression();
+                    result = parseProduct();
                 }
                 else if (lastOperationID == Lexer.ADD || lastOperationID == Lexer.SUB) {
                     result.add(0, Lexer.LEFT);
                     result.add(lastOperationID);
-                    ArrayList<Byte> expr = parseExpression();
+                    ArrayList<Byte> expr = parseProduct();
 
                     for (int j = 0; j < expr.size(); j++) {
                         result.add(expr.get(j));
@@ -78,7 +75,6 @@ public class PreParser {
                     result.add(Lexer.RIGHT);
                 }
                 else System.err.println("MULT or DIV");
-                idx--;
 
                 expected.clear();
                 expected.add(Lexer.ADD);
@@ -93,10 +89,8 @@ public class PreParser {
             else if (tokens[idx] == Lexer.NUM || tokens[idx] == Lexer.VAR) {
                 if (lastOperationID == Lexer.EOF) {
                     if (tokens[idx] == Lexer.NUM) {
-                        for (int j = 0; j < 5; j++) {
-                            idx++;
-                            result.add(tokens[idx]);
-                        }
+                        result = parseProduct();
+                        idx--;
                     }
                     else result.add(Lexer.VAR);
                 }
@@ -125,6 +119,8 @@ public class PreParser {
 
             idx++;
         }
+
+        return result;
     }
 
     public ArrayList<Byte> parseProduct() {
@@ -136,7 +132,7 @@ public class PreParser {
         expected.add(Lexer.NUM);
         expected.add(Lexer.VAR);
 
-        while (true) {
+        while (idx < tokens.length) {
             if (!expected.contains(tokens[idx])) {
                 new Error(Error.unexpectedToken, tokens, idx, expected);
                 return result; // TODO
@@ -158,7 +154,9 @@ public class PreParser {
             else if (tokens[idx] == Lexer.NUM || tokens[idx] == Lexer.VAR) {
                 ArrayList<Byte> number = new ArrayList<>(5);
                 if (tokens[idx] == Lexer.NUM) {
-                    for (int j = 0; j < 5; j++) {
+                    number.add(tokens[idx]);
+
+                    for (int j = 0; j < 4; j++) {
                         idx++;
                         number.add(tokens[idx]);
                     }
@@ -171,7 +169,7 @@ public class PreParser {
                     result.add(lastOperationID);
 
                     for (int j = 0; j < number.size(); j++) {
-                        result.add(0, number.get(j));
+                        result.add(number.get(j));
                     }
 
                     result.add(Lexer.RIGHT);
@@ -205,8 +203,6 @@ public class PreParser {
                 }
                 else System.err.println("MULT or DIV");
 
-                idx--;
-
                 expected.clear();
                 expected.add(Lexer.ADD);
                 expected.add(Lexer.SUB);
@@ -232,10 +228,9 @@ public class PreParser {
     }
 
     public byte[] getTokens() {
-        result.add(Lexer.EOF);
-        byte[] resultArray = new byte[result.size()];
-        for (int j = 0; j < result.size(); j++) {
-            resultArray[j] = result.get(j);
+        byte[] resultArray = new byte[preParsed.size()];
+        for (int j = 0; j < preParsed.size(); j++) {
+            resultArray[j] = preParsed.get(j);
         }
 
         return resultArray;
