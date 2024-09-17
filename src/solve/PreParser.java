@@ -60,10 +60,10 @@ public class PreParser {
             
             else if (tokens[idx] == Lexer.LEFT) {
                 if (lastOperationID == Lexer.EOF) {
-                    idx++;
                     result = parseProduct();
                 }
-                else if (lastOperationID == Lexer.ADD || lastOperationID == Lexer.SUB) {
+                else if (lastOperationID == Lexer.ADD || lastOperationID == Lexer.SUB
+                || lastOperationID == Lexer.MULT || lastOperationID == Lexer.DIV) {
                     result.add(0, Lexer.LEFT);
                     result.add(lastOperationID);
                     ArrayList<Byte> expr = parseProduct();
@@ -76,6 +76,7 @@ public class PreParser {
                 }
                 else System.err.println("MULT or DIV");
 
+                idx--;
                 expected.clear();
                 expected.add(Lexer.ADD);
                 expected.add(Lexer.SUB);
@@ -94,7 +95,8 @@ public class PreParser {
                     }
                     else result.add(Lexer.VAR);
                 }
-                else if (lastOperationID == Lexer.ADD || lastOperationID == Lexer.SUB) {
+                else if (lastOperationID == Lexer.ADD || lastOperationID == Lexer.SUB
+                || lastOperationID == Lexer.MULT || lastOperationID == Lexer.DIV) {
                     result.add(0, Lexer.LEFT);
                     result.add(lastOperationID);
                     ArrayList<Byte> expr = parseProduct();
@@ -105,7 +107,6 @@ public class PreParser {
 
                     result.add(Lexer.RIGHT);
                 }
-                else System.err.println("MULT or DIV");
 
                 expected.clear();
                 expected.add(Lexer.ADD);

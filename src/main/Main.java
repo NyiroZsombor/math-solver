@@ -8,7 +8,7 @@ import solve.Parser;
 
 public class Main {
     public static void main(String[] args) {
-        input2();
+        input();
     }
     
     public static void input() {
